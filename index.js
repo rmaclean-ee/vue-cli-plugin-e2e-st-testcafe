@@ -26,7 +26,6 @@ module.exports = (api, options) => {
       });
 
       runner.on('exit', (code) => {
-        console.log(`CODE ${code}`);
         process.exit(code);
       });
 
