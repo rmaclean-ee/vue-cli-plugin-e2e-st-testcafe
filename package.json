@@ -1,7 +1,7 @@
 {
   "name": "vue-cli-plugin-testcafe",
   "description": "vue-cli 3.x plugin to add TestCafe to your Vue Project",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "license": "MIT",
   "repository": {
@@ -10,6 +10,6 @@
   },
   "homepage": "https://github.com/rmaclean-ee/vue-cli-plugin-e2e-st-testcafe#readme",
   "dependencies": {
-    "testcafe": "^0.23.0"
+    "testcafe": "^0.23.3"
   }
 }

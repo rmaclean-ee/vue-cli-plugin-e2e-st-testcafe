@@ -1,49 +1,60 @@
-module.exports = (api, options) => {
-  function run(args, rawArgs) {
-    const serverPromise = args.url
-      ? Promise.resolve({ url: args.url })
-      : api.service.run('serve', { mode: args.mode || 'development' });
+const optionsParser = require('./optionsParser');
+const { log, done } = require('@vue/cli-shared-utils');
 
-    return serverPromise.then(({ url, server }) => {
-      if (!server) {
-        error('Server not running');
-        process.exit(1);
-        return;
+function run(args) {
+  return serverPromise.then(() => {
+    const testCafeArgs = ['testcafe', args.browser, args.testPath];
+    const { spawn } = require('child_process');
+
+    const runner = spawn('npx', testCafeArgs);
+    runner.stdout.on('data', (data) => {
+      const message = data.toString().trim();
+      if (message) {
+        log(message);
       }
-
-      const { info } = require('@vue/cli-shared-utils');
-      info(`Starting e2e tests...`);
-
-      const testCafeArgs = ['testcafe', 'chrome', './tests/e2e/'];
-      const { spawn } = require('child_process');
-
-      const runner = spawn('npx', testCafeArgs);
-      runner.stdout.on('data', (data) => {
-        const message = data.toString().trim();
-        if (message) {
-          info(message);
-        }
-      });
-
-      runner.on('exit', (code) => {
-        process.exit(code);
-      });
-
-      runner.on('error', () => server.close());
-
-      return runner;
     });
-  }
 
+    runner.on('exit', (code) => {
+      process.exit(code);
+    });
+
+    return runner;
+  });
+}
+
+module.exports = (api) => {
   api.registerCommand(
     'testcafe',
     {
-      description: 'run e2e tests with TestCafe',
+      description: 'Run End-to-End tests with TestCafe',
       usage: 'vue-cli-service testcafe [options]',
-      options: Object.assign({
-        // "--arg": "insert extra argument here"
-      }),
     },
-    (args, rawArgs) => run(args, rawArgs),
+    async (args, options) => {
+      log('Starting Testcafe');
+      opts = opts || [];
+
+      let browser = optionsParser.stringSetting(options, 'browser');
+      if (!browser) {
+        browser = 'chrome';
+      }
+
+      let testPath = optionsParser.stringSetting(options, 'tests');
+      if (!testPath) {
+        testPath = './tests/e2e/*.ts';
+      }
+
+      let vueMode = options.stringSetting(options, 'mode');
+      if (!vueMode) {
+        vueMode = 'development';
+      }
+
+      const { url, server } = await api.service.run('serve', { mode: vueMode });
+      log(`Running TestCafe to ${url}`);
+
+      return run().then(() => {
+        server.close();
+        done('TestCafe completed');
+      });
+    },
   );
 };
