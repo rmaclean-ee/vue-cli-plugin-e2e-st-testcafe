@@ -1,11 +1,10 @@
 const optionsParser = require('./optionsParser');
 const { log, done } = require('@vue/cli-shared-utils');
+const { spawn } = require('child_process');
 
-function run(args) {
-  return serverPromise.then(() => {
-    const testCafeArgs = ['testcafe', args.browser, args.testPath];
-    const { spawn } = require('child_process');
-
+const runTestCafe = (args) => {
+  const testCafeArgs = ['testcafe', args.browser, args.testPath];
+  return new Promise((resolve, reject) => {
     const runner = spawn('npx', testCafeArgs);
     runner.stdout.on('data', (data) => {
       const message = data.toString().trim();
@@ -14,13 +13,15 @@ function run(args) {
       }
     });
 
-    runner.on('exit', (code) => {
-      process.exit(code);
+    runner.on('error', (err) => {
+      reject(code);
     });
 
-    return runner;
+    runner.on('exit', (code) => {
+      resolve(code);
+    });
   });
-}
+};
 
 module.exports = (api) => {
   api.registerCommand(
@@ -43,7 +44,7 @@ module.exports = (api) => {
         testPath = './tests/e2e/*.ts';
       }
 
-      let vueMode = opts.stringSetting(opts, 'mode');
+      let vueMode = optionsParser.stringSetting(opts, 'mode');
       if (!vueMode) {
         vueMode = 'development';
       }
@@ -51,7 +52,10 @@ module.exports = (api) => {
       const { url, server } = await api.service.run('serve', { mode: vueMode });
       log(`Running TestCafe to ${url}`);
 
-      return run().then(() => {
+      return runTestCafe({
+        browser,
+        testPath,
+      }).then(() => {
         server.close();
         done('TestCafe completed');
       });

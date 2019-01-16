@@ -1,4 +1,4 @@
-const findSetting = (key) => {
+const findSetting = (options, key) => {
   let found = -1;
   for (let index = 0; index < options.length; index++) {
     const element = options[index].toLowerCase();
@@ -16,7 +16,7 @@ exports.arraySetting = (options, key) => {
 };
 
 exports.stringSetting = (options, key) => {
-  const found = findSetting(key);
+  const found = findSetting(options, key);
   if (found === -1) {
     return undefined;
   }
@@ -27,7 +27,7 @@ exports.stringSetting = (options, key) => {
 };
 
 exports.booleanSetting = (options, key) => {
-  const found = findSetting(key);
+  const found = findSetting(options, key);
 
   if (found === -1) {
     return false;
