@@ -29,21 +29,21 @@ module.exports = (api) => {
       description: 'Run End-to-End tests with TestCafe',
       usage: 'vue-cli-service testcafe [options]',
     },
-    async (args, options) => {
+    async (args, opts) => {
       log('Starting Testcafe');
-      options = options || [];
+      opts = opts || [];
 
-      let browser = optionsParser.stringSetting(options, 'browser');
+      let browser = optionsParser.stringSetting(opts, 'browser');
       if (!browser) {
         browser = 'chrome';
       }
 
-      let testPath = optionsParser.stringSetting(options, 'tests');
+      let testPath = optionsParser.stringSetting(opts, 'tests');
       if (!testPath) {
         testPath = './tests/e2e/*.ts';
       }
 
-      let vueMode = options.stringSetting(options, 'mode');
+      let vueMode = opts.stringSetting(opts, 'mode');
       if (!vueMode) {
         vueMode = 'development';
       }
