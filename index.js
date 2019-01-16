@@ -31,7 +31,7 @@ module.exports = (api) => {
     },
     async (args, options) => {
       log('Starting Testcafe');
-      opts = opts || [];
+      options = options || [];
 
       let browser = optionsParser.stringSetting(options, 'browser');
       if (!browser) {
